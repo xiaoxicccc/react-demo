@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./js/react.development.js"></script>
+    <script src="./js/react-dom.development.js"></script>
+    <script src="./js/babel.min.js"></script>
+</head>
+<body>
+    
+    <div id="box"></div>
+
+    <script type="text/babel">
+        //todolist案例
+        class App extends React.Component{
+            constructor(){
+                super()
+                this.state = {
+                    list:["aa","bb","cc"],
+                    arr:[],
+                    flag:true
+                }
+            }
+
+            add = e=>{
+                if(e.keyCode === 13){
+                    this.setState({ 
+                        list:[...this.state.list,e.target.value]
+                    })
+                    e.target.value = ""
+                }
+            }
+
+            //删除功能
+            delete = (index)=>{
+                // this.state.list.splice(index,1)
+                // this.setState({
+                //     list:this.state.list
+                // })
+
+                this.setState({
+                    list: this.state.list.filter((item,i)=>{
+                        if(i === index){  //只要外部传入的index与所遍历的i相等，就代表这一项需要被删除的。
+                            return false
+                        }
+                        return true
+                    })
+                })
+            }
+
+            //修改
+            update = index=>{
+                var newValue = prompt("修改数据")
+                //需要将newValue赋值给指定的index的数组值
+                this.state.list[index] = newValue
+                this.setState({
+                    list:this.state.list
+                })
+            }
+
+            //模糊查询
+            blurFind = () => {
+                let keyword = prompt('请输入要查询的内容')
+
+                let result = this.state.list.filter(item=>item.includes(keyword))
+                result.forEach((item,i,arr)=>{
+                    arr[i] = item.replace(new RegExp(keyword,'g'),'<span style="color:red;">'+keyword+'</span>')
+                })
+                this.setState({
+                    arr:result,
+                    flag: false
+                })
+            }
+
+
+            render(){
+                let {list,arr,flag} = this.state;
+                return (
+                    <div>
+                        <input type="text" onKeyUp={this.add}/>
+                        <button onClick={this.blurFind}>模糊查询</button>
+                        <button onClick={()=>{this.setState({flag:true,arr:[]})}}>返回</button>
+                        <ul style={{display:flag?'block':'none'}}>
+                            {
+                                list.map((item,index)=>{
+                                    return <li key={index}>
+                                        {item}
+                                        <button onClick={this.delete.bind(this,index)}>删除</button>
+                                        <button onClick={this.update.bind(this,index)}>修改</button>
+                                    </li>
+                                })
+                            }    
+                        </ul>
+                        <ul>
+                            {
+                                arr.map((item,index)=>{
+                                    // return <li key={index}>{item}</li>
+                                    return <li key={index} dangerouslySetInnerHTML={{__html: item}}></li>
+                                })
+                            }
+                        </ul>
+                    </div>
+                )
+            }
+        }
+
+        // console.log(prompt("输入修改的之"))
+
+        ReactDOM.render(<App />,document.getElementById("box"));
+    </script>
+</body>
+</html>
